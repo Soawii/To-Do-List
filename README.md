@@ -1,2 +1,2 @@
 # To-Do-List
-A simple web to-do-list with sorting and filtering possible
+A simple web to-do-list with sorting and filtering
