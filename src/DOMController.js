@@ -62,6 +62,7 @@ export default class DOMController {
             if (add_item_dialog.returnValue == "")
                 return;
             PubSub.publish("new-item", add_item_dialog.returnValue);
+            add_item_dialog.returnValue = "";
         });
 
         // edit item modal
@@ -90,6 +91,7 @@ export default class DOMController {
             if (this.edit_item_dialog.returnValue == "")
                 return;
             PubSub.publish("edit-item", this.edit_item_dialog.returnValue);
+            this.edit_item_dialog.returnValue = "";
         });
 
         // add project button
