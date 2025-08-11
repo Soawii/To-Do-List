@@ -1,0 +1,769 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+button {
+    margin: 0;
+    border: none;
+    background-color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+:root {
+    --clr-bg-main: #fff;
+    --clr-bg-sidebar: #fcfaf8;
+    --clr-bg-item: #fcfaf8;
+    --clr-bg-checkbox: #fafafa;
+    --clr-bg-checkbox-hover: #eee;
+    --clr-bg-selected: #DD4D40;
+
+    --clr-bg-modal: #fff;
+    --clr-modal-backdrop: rgb(0,0,0,0.3);
+
+    --clr-btn-cancel: red;
+    --clr-btn-submit: green;
+
+    --clr-text-main: #191716;
+    --clr-text-sidebar: #191716;
+    --clr-text-sidebar-light: #888;
+    --clr-text-accent: #DD4D40;
+    --clr-svg-sidebar: #191716;
+    --clr-text-selected: #fff;
+
+    --clr-item-title: #191716;
+    --clr-item-desc: rgb(0,0,0,0.7);
+    --clr-item-date: #191716;
+    --clr-item-prio: #191716;
+    --clr-item-border: rgb(0,0,0,0.1);
+
+    --clr-hover: rgb(0, 0, 0, 0.05);
+    --clr-selected-hover: rgb(0,0,0,0.34);
+    --clr-input-border: #ccc;
+
+    --button-height: 40px;
+    --animation-time: 0.15s;
+}
+:root[theme="dark"] {
+    --clr-bg-main: #181818;
+    --clr-bg-sidebar: #212121;
+    --clr-bg-item: #333;
+    --clr-bg-checkbox-hover: #444;
+    --clr-bg-modal: #212121;
+
+    --clr-text-main: #fff;
+    --clr-text-sidebar: #fff;
+    --clr-text-sidebar-light: rgb(200,200,200);
+    --clr-text-accent: #DD4D40;
+    --clr-svg-sidebar: #fff;
+
+    --clr-item-title: #fff;
+    --clr-item-desc: rgb(255,255,255,0.7);
+    --clr-item-date: #fff;
+    --clr-item-prio: #fff;
+    --clr-item-border: rgb(255,255,255,0.1);
+
+    --clr-hover: rgb(255,255, 255, 0.05);
+    --clr-input-border: #777;
+}
+
+html {
+    height: 100%;
+    overflow: hidden;
+}
+body {
+    position: relative;
+    --sidebar-width: 300px;
+
+    height: 100%;
+    margin: 0;
+    display: flex;
+    font-family: "Roboto", "Apple Color Emoji", Helvetica, Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+    
+    margin-left: 0px;
+    transition: margin-left 0.2s ease-in-out;
+
+    overflow-y: hidden;
+    overflow-x: auto;
+}
+body:has(#sidebar-closed:checked) {
+    margin-left: calc(-1 * var(--sidebar-width));
+}
+label:has(+#sidebar-closed:checked) {
+    right: calc(-1 * var(--button-height) - 1rem);
+}
+
+.sidebar {
+    height: 100%;
+    position: relative;
+    width: var(--sidebar-width);
+    flex-grow: 0;
+    flex-shrink: 0;
+    z-index: 2;
+
+    background-color: var(--clr-bg-sidebar);
+    color: var(--clr-text-sidebar);
+}
+.sidebar > input {
+    display: none;
+}
+.sidebar > label {
+    z-index: 1;
+    position: absolute;
+    height: var(--button-height);
+    aspect-ratio: 1/1;
+    top: 16px;
+    right: 6px;
+    border-radius: 6px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    transition: right 0.2s ease-in-out;
+}
+.sidebar > label:hover {
+    background-color: var(--clr-hover);
+    cursor: pointer;
+}
+
+.scale-on-press {
+    scale: 1;
+}
+.scale-on-press:active {
+    scale: 0.96;
+}
+
+nav {
+    padding: 0 0.5rem;
+    max-height: 100%;
+}
+nav > * {
+    width: 100%;
+    text-wrap: nowrap;
+}
+.sidebar svg {
+    fill: var(--clr-svg-sidebar);
+    aspect-ratio: 1/1;
+}
+.btn-like {
+    display: flex;
+    align-items: center;
+    height: var(--button-height);
+    gap: 6px;
+    border-radius: 6px;
+    padding-left: 6px;
+    font-weight: 400;
+}
+.btn-like:hover {
+    background-image: linear-gradient(var(--clr-hover), var(--clr-hover));
+    cursor: pointer;
+}
+.btn-like:hover button.project-settings-button {
+    background-color: transparent;
+}
+.btn-like button.project-settings-button {
+    height: calc(var(--button-height) - 6px);
+    border-radius: 4px;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn-like:hover button.project-settings-button:hover {
+    background-image: linear-gradient(var(--clr-hover), var(--clr-hover));
+}
+.btn-like[selectedproject]:hover button.project-settings-button:hover {
+    background-image: linear-gradient(var(--clr-selected-hover), var(--clr-selected-hover));
+}
+.project-settings {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#heading {
+    position: relative;
+    height: var(--button-height);
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-family: monospace;
+    gap: 10px;
+    margin: 1rem 0;
+    padding: 0rem 1rem;
+    color: var(--clr-text-accent);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+#add-item, #add-project {
+    color: var(--clr-text-accent);
+    font-weight: 800;
+}
+#add-item svg, #add-project svg {
+    fill: var(--clr-text-accent);
+}
+#projects {
+    width: 100%;
+}
+#projects-and-add {
+    height: calc(100vh - 2 * var(--button-height) - 6rem);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--clr-text-sidebar-light) var(--clr-bg-sidebar);
+}
+
+.input-project-title {
+    background-color: var(--clr-bg-modal);
+    color: var(--clr-text-main);
+    flex: 1;
+    font: inherit;
+    border: 1px solid var(--clr-input-border);
+    border-radius: 5px;
+    padding: 5px;
+}
+.input-project-title:disabled {
+    color: inherit;
+    background-color: inherit;
+    pointer-events: none;
+    border: none;
+    padding: 0px;
+}
+
+.project-settings {
+    position: relative;
+    margin-right: 3px;
+    height: 100%;
+}
+*[selectedproject] {
+    background-color: var(--clr-bg-selected);
+    color: var(--clr-text-selected);
+    font-weight: 500;
+}
+*[selectedproject] svg {
+    fill: var(--clr-text-selected);
+}
+*[selectedproject]:hover {
+    background-image: linear-gradient(var(--clr-hover-selected), var(--clr-hover-selected));
+}
+*[selectedproject]:hover .project-settings-button:hover {
+    background-image: linear-gradient(var(--clr-hover-selected), var(--clr-hover-selected));
+}
+
+.project-settings-dialog {
+    position: absolute;
+
+    left: unset;
+    top: calc(100% + 4px);
+    right: -3px;
+
+    border: 1px solid var(--clr-input-border);
+    border-radius: 8px;
+    z-index: 1;
+    overflow: hidden;
+    cursor: default;
+
+    transition-behavior: allow-discrete;
+    opacity: 0;
+    translate: 0 -20%;
+    transition: translate 0.1s ease-in-out,
+                opacity 0.1s ease-in-out, 
+                overlay 0.1s allow-discrete,
+                display 0.1s allow-discrete;
+}
+.project-settings-dialog:open {
+    opacity: 1;
+    translate: 0 0;
+}
+@starting-style {
+    .project-settings-dialog:open {
+        translate: 0 -20%;
+        opacity: 0;
+    }
+}
+
+.project-settings-dialog  > .dialog-content {
+    background-color: var(--clr-bg-modal);
+    color: var(--clr-item-title);
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    font-weight: 400;
+}
+.project-settings-dialog svg {
+    fill: currentColor;
+}
+.project-settings-dialog button {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    gap: 4px;
+    padding: 6px;
+    font: inherit;
+    color: inherit;
+    background-color: transparent;
+    cursor: pointer;
+}
+.project-settings-dialog button:hover {
+    background-image: linear-gradient(var(--clr-hover), var(--clr-hover));
+}
+.project-settings-dialog button {
+    border-radius: 4px;
+}
+.btn-like:has(.project-settings-dialog:hover) {
+    background-image: none;
+}
+
+#main {
+    flex: 1;
+    min-width: 300px;
+    background-color: var(--clr-bg-main);
+    overflow: auto;
+}
+#utils {
+    position: sticky;
+    top: 0;
+    background-color: var(--clr-bg-main);
+    z-index: 1;
+
+    display: flex;
+    justify-content: end;
+    padding: 16px 1rem 16px calc(2rem + var(--button-height));
+}
+#utils button, #utils input, #utils label {
+    height: var(--button-height);
+    width: var(--button-height);
+    border-radius: 6px;
+    background-color: inherit;
+}
+#utils label {
+    display: block;
+}
+#utils button:hover, #utils input:hover, #utils label:hover{
+    background-color: var(--clr-hover);
+    cursor: pointer;
+}
+#checkbox-theme {
+    margin: 0;
+    display: none;
+}
+#checkbox-theme + label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#checkbox-theme + label > svg {
+    fill: var(--clr-item-title);
+}
+
+#main-content {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 0 3rem;
+}
+#header {
+    margin: 0rem 0 1rem 0;
+    text-align: start;
+    color: var(--clr-item-title);
+}
+#header::before {
+    content: "# ";
+}
+
+#filters-wrapper {
+    display: block;
+}
+#filters {
+    display: flex;
+    justify-content: start;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+#filters > button, .active-filter {
+    border: 1px solid var(--clr-input-border);
+    color: var(--clr-item-title);
+    background-color: transparent;
+    padding: 6px;
+    font-size: 1rem;
+    border-radius: 5px;
+    font-weight: 500;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+}
+#filters > button {
+    width: 100px;
+}
+#filters-wrapper button:hover {
+    background-image: linear-gradient(var(--clr-hover), var(--clr-hover));
+}
+#filters-wrapper svg {
+    display: block;
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+#filters-wrapper .active-filter-delete {
+    display: block;
+    height: 100%;
+    aspect-ratio: 1/1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2px;
+    border-radius: 50vh;
+}
+#filters-wrapper .active-filter-delete svg {
+    display: block;
+    height: 20px;
+    width: 20px;
+    fill: var(--clr-text-main);
+}
+#active-filters {
+    display: flex;
+    justify-content: start;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+#items {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+}
+.items-wrapper:empty {
+    text-align: start;
+    font-size: 1rem;
+    color: var(--clr-item-title);
+
+}
+.items-wrapper:empty::before {
+    content: "...empty";
+    display: block;
+    font-family: monospace;
+}
+.item {
+    width: 100%;
+    background-color: var(--clr-bg-main);
+    padding: 0.7rem 0;
+
+    display: grid;
+    grid-template-columns: 18px 1fr;
+
+    column-gap: 0.8rem;
+
+    grid-template-rows: auto auto auto;
+    text-align: start;
+    border-bottom: 1px solid var(--clr-item-border);
+
+    opacity: 1;
+    transform: translate(0px, 0px);
+}
+.item[deleted] {
+    opacity: 0;
+    transition: opacity 0.25s ease-out;
+}
+.item[deleted] ~ .item {
+    transform: translate(0px, -100%);
+    transition: transform 0.25s ease-out;
+}
+.item[duplicated] ~ .item {
+    transform: translate(0px, 100%);
+    transition: transform 0.2s ease-out;
+}
+
+.checkbox-container {
+    grid-column: 1 / 2;
+    grid-row: 1 / -1;
+
+    display: flex;
+    align-items: start;
+}
+.checkbox-container > input {
+    position: relative;
+
+    top: 5px;
+    appearance: none;
+
+    background-color: transparent;
+    outline: 1px solid var(--clr-text-accent);
+    outline-offset: 2px;
+
+    width: 100%;
+    aspect-ratio: 1/1;
+
+    border-radius: 50vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+.checkbox-container > input:hover {
+    background-color: var(--clr-bg-checkbox-hover);
+}
+.checkbox-container > input[type="checkbox"]::after {
+    content: "";
+
+    background-color: var(--clr-text-accent);
+
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+    scale: 0;
+    transition: scale 0.1s ease-in-out;
+}
+.checkbox-container > input[type="checkbox"]:checked::after {
+    scale: 1;
+}
+
+.top-row {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    padding-bottom: 6px;
+
+    display: flex;
+    justify-content: start;
+}
+.top-row .item-button {
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+.top-row .item-button:first-of-type {
+    margin-left: auto;
+    margin-right: 4px;
+}
+.top-row .item-button:hover {
+    background-color: var(--clr-hover);
+}
+.top-row .item-button svg {
+    fill: var(--clr-item-title);
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--clr-item-title);
+}
+.description {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
+
+    margin-bottom: 8px;
+
+    color: var(--clr-item-desc);
+}
+
+.bottom-row {
+    grid-column: 2 / 3;
+    grid-row: 3 / 4;
+    padding-bottom: 4px;
+
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+.date {
+    display: flex;
+    color: var(--clr-item-date);
+    gap: 2px;
+}
+.date svg {
+    height: 17px;
+    width: 17px;
+    fill: var(--clr-item-date);
+}
+.priority {
+    text-wrap: nowrap;
+    display: flex;
+    color: var(--clr-text-accent);
+    font-weight: 600;
+}
+.priority svg {
+    height: 18px;
+    width: 18px;
+    fill: var(--clr-text-accent);
+}
+
+
+dialog.modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(400px, 100%);
+    height: fit-content;
+
+    background-color: var(--clr-bg-modal);
+    border-radius: 0.5rem;
+    overflow: hidden;
+
+    translate: -50% calc(-50% + 100px);
+    opacity: 0;
+    scale: 0.5;
+
+    transition: translate var(--animation-time) ease-in-out,
+                opacity var(--animation-time) ease-in-out, 
+                scale var(--animation-time) ease-in-out,
+                overlay var(--animation-time) linear allow-discrete,
+                display var(--animation-time) linear allow-discrete;
+
+    border: none;
+    font: inherit;
+    overflow: auto;
+}
+dialog.modal:open {
+    translate: -50% -50%;
+    opacity: 1;
+    scale: 1;
+}
+@starting-style {
+    dialog.modal:open {
+        translate: -50% calc(-50% + 100px);
+        opacity: 0;
+        scale: 0.5;
+    }
+}
+dialog.modal::backdrop {
+    opacity: 0;
+    background-color: var(--clr-modal-backdrop);
+    transition: opacity var(--animation-time) ease-in-out allow-discrete,
+                overlay var(--animation-time) linear allow-discrete,
+                display var(--animation-time) linear allow-discrete;
+}
+dialog.modal:open::backdrop {
+    opacity: 1;
+}
+@starting-style {
+    dialog.modal:open::backdrop {
+        opacity: 0;
+    }
+}
+
+.form-input {
+    color: var(--clr-text-main);
+}
+dialog.modal > form {
+    display: grid;
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+form input, form textarea, form select {
+    background-color: var(--clr-bg-modal);
+    display: block;
+    width: 100%;
+    padding: 6px;
+    border-radius: 5px;
+    border: 1px solid var(--clr-input-border);
+    font: inherit;
+    color: inherit;
+}
+form fieldset {
+    border: none;
+    border-bottom: 1px solid var(--clr-input-border);
+    padding: 1.5rem;
+}
+form textarea {
+    resize: none;
+    height: calc(3lh + 12px);
+}
+.form-input:not(:last-child) {
+    margin-bottom: 1.5ch;
+}
+.form-input > label {
+    display: block;
+    padding-bottom: 3px;
+    font-weight: 500;
+}
+.form-submit {
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+.form-submit > input {
+    border: none;
+    padding: 0.5rem;
+    font: inherit;
+    font-weight: 500;
+}
+input[type="button"][value="Cancel"] {
+    background-color: #EDEDED;
+    color: #1a1a1a;
+}
+input[type="button"][value="Cancel"]:hover {
+    background-image: linear-gradient(rgb(0,0,0,0.05), rgb(0,0,0,0.05));
+    cursor: pointer;
+}
+input[type="submit"]{
+    background-color: var(--clr-text-accent);
+    color: var(--clr-text-selected);
+}
+input[type="submit"]:hover {
+    background-image: linear-gradient(rgb(0,0,0,0.4), rgb(0,0,0,0.4));
+    cursor: pointer;
+}
+.form-input:has(:required) label::after {
+    display: inline;
+    vertical-align: text-top;
+    margin-left: 3px;
+    font-size: 0.9em;
+    content: "*";
+    color: red;
+}
+
+#add-project-container {
+    width: 100%;
+    padding: 4px;
+}
+#add-project {
+    display: block;
+    margin: 0 auto;
+    border-radius: 50vh;
+    padding: 4px;
+}
+#add-project:hover {
+    background-image: linear-gradient(var(--clr-hover), var(--clr-hover));
+}
+#add-project svg {
+    display: block;
+    fill: var(--clr-svg-sidebar);
+}
+
+#filter-dialog .form-input[optional] {
+    display: none;
+    margin-bottom: 0;
+}
+#filter-dialog:has(*[data-chosen=""]) .form-input:nth-child(2) {
+    margin-bottom: 0;
+}
+#filter-dialog:has(*[data-chosen="title"]) #filter-input-text-div {
+    display: block;
+}
+#filter-dialog:has(*[data-chosen="date"]) #filter-input-date-div {
+    display: block;
+}
+#filter-dialog:has(*[data-chosen="priority"]) #filter-input-number-div {
+    display: block;
+}
+select {
+    cursor: pointer;
+}
